@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import './screens/products_overview_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Text('data'),
+      home: ProductsOverviewScreen(),
     );
   }
 }
