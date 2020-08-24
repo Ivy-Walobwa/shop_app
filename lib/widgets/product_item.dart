@@ -1,31 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shop_app/providers/product.dart';
 import 'package:shop_app/screens/product_detail_screen.dart';
 
 class ProductItem extends StatelessWidget {
-  final String id;
-  final String imageUrl;
-  final String title;
-  final double price;
-
-  ProductItem({
-    this.imageUrl,
-    this.title,
-    this.id,
-    this.price,
-  });
 
   @override
   Widget build(BuildContext context) {
+    final product = Provider.of<Product>(context);
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: GridTile(
         child: GestureDetector(
           onTap: (){
-            Navigator.pushNamed(context, ProductDetailScreen.routeName, arguments: id);
+            Navigator.pushNamed(context, ProductDetailScreen.routeName, arguments: product.id);
           },
           child: Image.network(
-            imageUrl,
+            product.imageUrl,
             fit: BoxFit.cover,
           ),
         ),
@@ -34,18 +26,21 @@ class ProductItem extends StatelessWidget {
           children: <Widget>[
             SizedBox(),
             IconButton(
-              icon: Icon(Icons.favorite_border),
-              onPressed: () {},
+              icon: Icon(product.isFavorite ? Icons.favorite : Icons.favorite_border),
+              onPressed: () {
+                product.toggleIsFavoriteState();
+              },
             ),
           ],
         ),
         footer: GridTileBar(
           backgroundColor: Colors.black54,
-          title: Text(title),
-          subtitle: Text('\$$price'),
+          title: Text(product.title),
+          subtitle: Text('\$${product.price}'),
           trailing: IconButton(
             icon: Icon(Icons.shopping_cart),
-            onPressed: () {},
+            onPressed: () {
+            },
           ),
         ),
       ),
