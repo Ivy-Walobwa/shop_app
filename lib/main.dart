@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/providers/cart_provider.dart';
+import 'package:shop_app/screens/cart_screen.dart';
 import 'providers/products_provider.dart';
 import 'package:shop_app/screens/product_detail_screen.dart';
 import './screens/products_overview_screen.dart';
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         theme: ThemeData(
           primaryColor: Colors.white,
+          accentColor: Colors.orange,
           iconTheme:IconThemeData(color: Colors.orange),
           appBarTheme: AppBarTheme(elevation: 0, ),
           visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -29,7 +31,8 @@ class MyApp extends StatelessWidget {
         ),
         home: ProductsOverviewScreen(),
         routes: {
-          ProductDetailScreen.routeName : (ctx) =>ProductDetailScreen()
+          ProductDetailScreen.routeName : (ctx) =>ProductDetailScreen(),
+          CartScreen.routeName: (ctx)=> CartScreen(),
         },
       ),
     );
