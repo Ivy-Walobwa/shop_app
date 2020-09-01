@@ -1,4 +1,6 @@
+
 import 'package:flutter/material.dart';
+
 import '../models/cart_item.dart';
 
 class CartProvider with ChangeNotifier {
@@ -21,6 +23,7 @@ class CartProvider with ChangeNotifier {
   }
 
   void addItems(String productId, double price, String title) {
+
     if (_items.containsKey(productId)) {
       _items.update(
         productId,
