@@ -84,7 +84,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
   }
 
-  void _saveForm() {
+  void _saveForm() async {
     final _isValid = _form.currentState.validate();
     if (!_isValid) {
       return;
@@ -93,25 +93,19 @@ class _EditProductScreenState extends State<EditProductScreen> {
     setState(() {
       _isLoading = true;
     });
+
     if (_editProduct.id != null) {
-      Provider.of<ProductsProvider>(context, listen: false)
+      await Provider.of<ProductsProvider>(context, listen: false)
           .updateProduct(_editProduct.id, _editProduct);
-      setState(() {
-        _isLoading = false;
-      });
-      Navigator.of(context).pop();
     } else {
-      Provider.of<ProductsProvider>(context, listen: false)
-          .addProducts(_editProduct)
-          .then((_) {
-        setState(() {
-          _isLoading = false;
-        });
-        Navigator.of(context).pop();
-      }).catchError((onError) {
-        return showDialog<Null>(
+      try {
+        await Provider.of<ProductsProvider>(context, listen: false)
+            .addProducts(_editProduct);
+      } catch (err) {
+        await showDialog<Null>(
             context: context,
-            builder: (ctx) => AlertDialog(
+            builder: (ctx) =>
+                AlertDialog(
                   title: Text('error occurred!'),
                   content: Text('Something went wrong'),
                   actions: <Widget>[
@@ -123,15 +117,21 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     ),
                   ],
                 ));
-      }).then((value) {
-        setState(() {
-          _isLoading = false;
-        });
-        Navigator.of(context).pop();
-      });
-    }
-  }
+//      }finally{
+//        setState(() {
+//          _isLoading = false;
+//        });
+//        Navigator.of(context).pop();
+//      }
 
+
+      }
+    }
+    setState(() {
+      _isLoading = false;
+    });
+    Navigator.of(context).pop();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
