@@ -36,6 +36,9 @@ class ProductsProvider with ChangeNotifier {
       final response = await http.get(url);
       final loadedData = json.decode(response.body) as Map<String, dynamic>;
       final List<Product> fetchedProducts = [];
+      if (loadedData == null) {
+        return;
+      }
       loadedData.forEach((prodId, prodData) {
         fetchedProducts.add(Product(
           price: prodData['price'],
@@ -100,7 +103,7 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  Future<void> deleteProduct(String productId) async{
+  Future<void> deleteProduct(String productId) async {
     final url =
         'https://flutter-shop-app-4d183.firebaseio.com/products/$productId.json';
 
@@ -111,12 +114,11 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
 
     final response = await http.delete(url);
-    if(response.statusCode >=400){
+    if (response.statusCode >= 400) {
       _items.insert(prodIndex, existingProd);
       notifyListeners();
       throw HttpException('Could not delete product');
     }
     existingProd = null;
-
   }
 }

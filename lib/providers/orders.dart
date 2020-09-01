@@ -12,7 +12,7 @@ class Orders with ChangeNotifier {
     return [..._orders];
   }
 
-  Future<void> addOrder(List<CartItem> cartProducts, double total) async{
+  Future<void> addOrder(List<CartItem> cartProducts, double total) async {
     const url = 'https://flutter-shop-app-4d183.firebaseio.com/orders.json';
     final timestamp = DateTime.now();
 
@@ -21,12 +21,14 @@ class Orders with ChangeNotifier {
       body: json.encode({
         'amount': total,
         'dateTime': timestamp.toIso8601String(),
-        'products': cartProducts.map((cp)=>{
-          'price': cp.price,
-          'id': cp.id,
-          'title': cp.title,
-          'quantity': cp.quantity,
-        }).toList(),
+        'products': cartProducts
+            .map((cp) => {
+                  'price': cp.price,
+                  'id': cp.id,
+                  'title': cp.title,
+                  'quantity': cp.quantity,
+                })
+            .toList(),
       }),
     );
 
@@ -39,6 +41,37 @@ class Orders with ChangeNotifier {
         products: cartProducts,
       ),
     );
+    notifyListeners();
+  }
+
+  Future<void> fetchOrdersFromDB() async {
+    const url = 'https://flutter-shop-app-4d183.firebaseio.com/orders.json';
+    final response = await http.get(url);
+    final List<OrderItem> loadedOrders = [];
+    final extractedData = json.decode(response.body) as Map<String, dynamic>;
+    if(extractedData == null){
+      return;
+    }
+    extractedData.forEach((orderId, orderData) {
+      loadedOrders.add(
+        OrderItem(
+          dateTime: DateTime.parse(orderData['dateTime']),
+          id: orderId,
+          amount: orderData['amount'],
+          products: (orderData['products'] as List<dynamic>)
+              .map(
+                (item) => CartItem(
+                  price: item['price'],
+                  title: item['title'],
+                  id: item['id'],
+                  quantity: item['quantity'],
+                ),
+              )
+              .toList(),
+        ),
+      );
+    });
+    _orders = loadedOrders.reversed.toList();
     notifyListeners();
   }
 }
