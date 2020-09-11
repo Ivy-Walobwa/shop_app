@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
           create: (_) => Orders(),
         ),
       ],
-      child: MaterialApp(
+      child: Consumer<Auth>(builder: (ctx, auth, _)=> MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
           primarySwatch: Colors.purple,
@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
           visualDensity: VisualDensity.adaptivePlatformDensity,
           fontFamily: 'Lato',
         ),
-        home: AuthScreen(),
+        home: auth.isAuth ? ProductsOverviewScreen() : AuthScreen(),
         routes: {
           ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
           CartScreen.routeName: (ctx) => CartScreen(),
@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
           EditProductScreen.routeName: (ctx) => EditProductScreen(),
           AuthScreen.routeName: (_) => AuthScreen()
         },
-      ),
+      ),),
     );
   }
 }
