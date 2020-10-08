@@ -6,31 +6,36 @@ import 'product.dart';
 import 'package:http/http.dart' as http;
 
 class ProductsProvider with ChangeNotifier {
-  List<Product> _items = [
-    Product(
-      id: 'p4',
-      title: 'A Pan',
-      description: 'Prepare any meal you want.',
-      price: 49.99,
-      imageUrl:
-          'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
-    ),
+  final String token;
+
+  List<Product> items = [
+//    Product(
+//      id: 'p4',
+//      title: 'A Pan',
+//      description: 'Prepare any meal you want.',
+//      price: 49.99,
+//      imageUrl:
+//          'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
+//    ),
   ];
 
-  List<Product> get items {
-    return [..._items];
+  ProductsProvider(this.token, this.items);
+
+
+  List<Product> get itemsList {
+    return [...items];
   }
 
   List<Product> get favoriteItems {
-    return _items.where((item) => item.isFavorite == true).toList();
+    return items.where((item) => item.isFavorite == true).toList();
   }
 
   Product findById(String id) {
-    return _items.firstWhere((prod) => prod.id == id);
+    return items.firstWhere((prod) => prod.id == id);
   }
 
   Future<void> getProductsFromDB() async {
-    const url = 'https://flutter-shop-app-4d183.firebaseio.com/products.json';
+    final url = 'https://flutter-shop-app-4d183.firebaseio.com/products.json?auth=$token';
 
     try {
       final response = await http.get(url);
@@ -49,7 +54,7 @@ class ProductsProvider with ChangeNotifier {
           isFavorite: prodData['isFavorite'],
         ));
       });
-      _items = fetchedProducts;
+      items = fetchedProducts;
       notifyListeners();
     } catch (err) {
       throw err;
@@ -57,7 +62,7 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> addProducts(Product product) async {
-    const url = 'https://flutter-shop-app-4d183.firebaseio.com/products.json';
+    final url = 'https://flutter-shop-app-4d183.firebaseio.com/products.json?auth=$token';
 
     try {
       var response = await http.post(url,
@@ -76,7 +81,7 @@ class ProductsProvider with ChangeNotifier {
           imageUrl: product.imageUrl,
           description: product.imageUrl);
 
-      _items.add(_newProduct);
+      items.add(_newProduct);
 
       notifyListeners();
     } catch (err) {
@@ -87,9 +92,9 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> updateProduct(String id, Product newProduct) async {
     final url =
-        'https://flutter-shop-app-4d183.firebaseio.com/products/$id.json';
+        'https://flutter-shop-app-4d183.firebaseio.com/products/$id.json?auth=$token';
 
-    final prodIndex = _items.indexWhere((element) => element.id == id);
+    final prodIndex = items.indexWhere((element) => element.id == id);
     if (prodIndex >= 0) {
       await http.patch(url,
           body: json.encode({
@@ -98,24 +103,24 @@ class ProductsProvider with ChangeNotifier {
             'imageUrl': newProduct.imageUrl,
             'price': newProduct.price,
           }));
-      _items[prodIndex] = newProduct;
+      items[prodIndex] = newProduct;
       notifyListeners();
     }
   }
 
   Future<void> deleteProduct(String productId) async {
     final url =
-        'https://flutter-shop-app-4d183.firebaseio.com/products/$productId.json';
+        'https://flutter-shop-app-4d183.firebaseio.com/products/$productId.json?auth=$token';
 
-    final prodIndex = _items.indexWhere((element) => element.id == productId);
-    var existingProd = _items[prodIndex];
+    final prodIndex = items.indexWhere((element) => element.id == productId);
+    var existingProd = items[prodIndex];
 
-    _items.removeAt(prodIndex);
+    items.removeAt(prodIndex);
     notifyListeners();
 
     final response = await http.delete(url);
     if (response.statusCode >= 400) {
-      _items.insert(prodIndex, existingProd);
+      items.insert(prodIndex, existingProd);
       notifyListeners();
       throw HttpException('Could not delete product');
     }
