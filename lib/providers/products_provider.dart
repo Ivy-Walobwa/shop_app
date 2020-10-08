@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 
 class ProductsProvider with ChangeNotifier {
   final String token;
+  final String userId;
 
   List<Product> items = [
 //    Product(
@@ -19,7 +20,7 @@ class ProductsProvider with ChangeNotifier {
 //    ),
   ];
 
-  ProductsProvider(this.token, this.items);
+  ProductsProvider(this.token,this.userId, this.items);
 
 
   List<Product> get itemsList {
@@ -35,7 +36,7 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> getProductsFromDB() async {
-    final url = 'https://flutter-shop-app-4d183.firebaseio.com/products.json?auth=$token';
+    var url = 'https://flutter-shop-app-4d183.firebaseio.com/products.json?auth=$token';
 
     try {
       final response = await http.get(url);
@@ -44,6 +45,10 @@ class ProductsProvider with ChangeNotifier {
       if (loadedData == null) {
         return;
       }
+      url = 'https://flutter-shop-app-4d183.firebaseio.com/userFavorites/$userId.json?auth=$token';
+      final favoriteResponse = await http.get(url);
+      final favoriteData = json.decode(favoriteResponse.body);
+
       loadedData.forEach((prodId, prodData) {
         fetchedProducts.add(Product(
           price: prodData['price'],
@@ -51,7 +56,7 @@ class ProductsProvider with ChangeNotifier {
           title: prodData['title'],
           imageUrl: prodData['imageUrl'],
           description: prodData['description'],
-          isFavorite: prodData['isFavorite'],
+          isFavorite: favoriteData== null ? false : favoriteData[prodId] ?? false,
         ));
       });
       items = fetchedProducts;
@@ -62,7 +67,7 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> addProducts(Product product) async {
-    final url = 'https://flutter-shop-app-4d183.firebaseio.com/products.json?auth=$token';
+    var url = 'https://flutter-shop-app-4d183.firebaseio.com/products.json?auth=$token';
 
     try {
       var response = await http.post(url,
@@ -71,9 +76,7 @@ class ProductsProvider with ChangeNotifier {
             'description': product.description,
             'imageUrl': product.imageUrl,
             'price': product.price,
-            'isFavorite': product.isFavorite,
           }));
-
       final _newProduct = Product(
           price: product.price,
           id: json.decode(response.body)['name'],
