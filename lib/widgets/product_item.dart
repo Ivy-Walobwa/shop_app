@@ -21,8 +21,9 @@ class ProductItem extends StatelessWidget {
             Navigator.pushNamed(context, ProductDetailScreen.routeName,
                 arguments: product.id);
           },
-          child: Image.network(
-            product.imageUrl,
+          child: FadeInImage(
+            placeholder: AssetImage('assets/images/product-placeholder.png'),
+            image: NetworkImage(product.imageUrl),
             fit: BoxFit.cover,
           ),
         ),
@@ -36,7 +37,8 @@ class ProductItem extends StatelessWidget {
                     ? Icons.favorite
                     : Icons.favorite_border),
                 onPressed: () {
-                  product.toggleIsFavoriteState(authData.token, authData.userId);
+                  product.toggleIsFavoriteState(
+                      authData.token, authData.userId);
                 },
               ),
             ),
